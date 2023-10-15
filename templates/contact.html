@@ -103,7 +103,7 @@
             <input type="text" id="subject" name="subject" required>
             <label for="message">Message:</label>
             <textarea id="message" name="message" required></textarea>
-            <button type="submit">Send Message</button>
+            <button onclick="sendEmail()" type="button">Send Message</button>
           </form>
         </div>
       </div>
@@ -113,6 +113,22 @@
     <!-- Footer -->
     {% include 'widgets/footer.html' %}
     <script>
+      function sendEmail() {
+          const name = document.getElementById('name').value;
+          const email = document.getElementById('email').value;
+          const subject = document.getElementById('subject').value;
+          const message = `
+              Name: ${name}
+              Message: ${document.getElementById('message').value}
+          `;
+
+          const emailLink = `mailto:mwai@spa-limited.com?subject=${encodeURIComponent(`${subject}`)}&body=${encodeURIComponent(message)}`;
+          window.location.href = emailLink;
+
+        document.getElementById('contactForm').reset();
+        
+      }
+      
       function validateForm() {
         // Simple form validation, you can modify this as needed
         const name = document.getElementById('name').value;
