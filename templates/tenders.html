@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Portfolio - GWASCO | Gusii Water & Sanitation Co Ltd </title>
+    <title>Tenders - GWASCO | Gusii Water & Sanitation Co Ltd </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -71,29 +71,40 @@
     <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
         <div class="carousel-item active">
-          <img id="banner" src="/static/portfolio.jpg" class="img-fluid d-block w-100" alt="...">
+          <img id="banner" src="/static/tenders.jpg" class="img-fluid d-block w-100" alt="...">
         </div>
       </div>
     </div>
 
     <div class="container" id ="portfolio">
-      <h2 class="text-center">Gallery</h2>
-      <div class="row" style="margin-bottom:16px;">
-        <a href="https://camphotmedia53.pixieset.com/gwascoboardmembers/" class="col-md-3">
-        <figure>
-            <img id="figimages" src="/static/bod/IMG_9919.jpg" alt="Water supply">
-            <figcaption>Board Members</figcaption>
-        </figure>
-        </a>
-        <a href="https://camphotmedia20.pixieset.com/gwascoeventphotos/" class="col-md-3">
-        <figure>
-            <img id="figimages" src="/static/DJI_0140.JPG" alt="Sewerage Services">
-            <figcaption>Event Photos</figcaption>
-        </figure>
-        </a>
-       
+      <h2 class="text-center">Tenders</h2>
+      <p>
+        Gusii Water & Sanitation Company Limited (GWASCO) invites sealed tenders from eligible candidates for the Provision of the following services. Tenderers are advised to read carefully and follow, the instructions provided in the instructions section of each tender.<br><br>
+
+        All enquiries can be directed to:<br><br><br>
+
+        The Managing Director,<br>
+        Gusii Water & Sanitation Company Ltd.<br>
+        P.O Box 3880-40200, Kisii-KENYA<br>
+        Tel: 0798 754 178<br>
+        E-mail: info@gwasco.co.ke<br>
+        Visit the head office at Bobaracho, along kisii – Keroka Road.<br><br><br>
+      </p>
+     {% if tenders %}
+          <div class="row" style="margin-bottom:16px;">
+              {% for tender in tenders %}
+                  {% include 'widgets/tenderitem.html' %}
+              {% endfor %}
+          </div>
+      {% else %}
+          <div class="no-opportunities-message">
+          <i class="fas fa-exclamation-circle"></i> No tenders available at the moment.
       </div>
+
+      {% endif %}
+
     </div>
+    <div style="height:60px;"></div>
 
 
 
