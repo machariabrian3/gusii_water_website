@@ -91,13 +91,16 @@
         Visit the head office at Bobaracho, along kisii – Keroka Road.<br><br><br>
       </p>
      {% if tenders %}
-          <div class="row" style="margin-bottom:16px;">
+          <div class="row">
+            <div class="col-12">
               {% for tender in tenders %}
                   {% include 'widgets/tenderitem.html' %}
               {% endfor %}
+            </div>
+              
           </div>
       {% else %}
-          <div class="no-opportunities-message">
+          <div>
           <i class="fas fa-exclamation-circle"></i> No tenders available at the moment.
       </div>
 
