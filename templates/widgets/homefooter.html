@@ -1,0 +1,103 @@
+<style>
+  footer {
+    padding: 10px;
+    bottom: 0;
+    width: 100%;
+  }
+</style>
+<footer class="container-fluid bg-dark text-light py-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h4 class="mb-4">Address</h4>
+        <p><i class="fas fa-map-marker-alt me-3"></i>Bobaracho, Along Kisii - Keroka Road</p>
+        <p><i class="fas fa-phone-alt me-3"></i>0798 754 178</p>
+        <p><i class="fas fa-envelope me-3"></i>info@gwasco.co.ke</p>
+        <p><i class="fas fa-envelope me-3"></i>P.O Box 3880 – 40200 Kisii.</p>
+      </div>
+
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+        <h4 class="mb-4">Our Services</h4>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <a class="text-light text-decoration-none" href="/apiv1/water-supply">
+              <i class="fas fa-tint me-3"></i> Water Supply
+            </a>
+          </li>
+          <li class="mb-2">
+            <a class="text-light text-decoration-none" href="/apiv1/sewerage-services">
+              <i class="fas fa-tint me-3"></i> Sewerage Services
+            </a>
+          </li>
+          <li class="mb-2">
+            <a class="text-light text-decoration-none" href="/apiv1/exhauster-services">
+              <i class="fas fa-truck me-3"></i> Exhauster Services
+            </a>
+          </li>
+          <li class="mb-2">
+            <a class="text-light text-decoration-none" href="/apiv1/bowser-services">
+              <i class="fas fa-truck me-3"></i> Bowser Services
+            </a>
+          </li>
+          <li class="mb-2">
+            <a class="text-light text-decoration-none" href="/apiv1/collapsible-services">
+              <i class="fas fa-box me-3"></i> Collapsible Tank
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
+          <h4 class="mb-4">Login</h4>
+          <form id="loginForm">
+              <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" name="email" required>
+                  <div class="invalid-feedback">Please provide a valid email.</div>
+              </div>
+              <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <div class="input-group">
+                      <input type="password" class="form-control" id="password" name="password" required>
+                      <span class="input-group-text">
+                          <i class="fas fa-eye" id="togglePassword"></i>
+                      </span>
+                  </div>
+                  <div class="invalid-feedback">Please provide a password.</div>
+              </div>
+              <button type="submit" class="btn btn-primary" disabled>Login</button>
+          </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <p class="m-0 text-center text-body-secondary">Copyright 2023 &copy; <a href="#" class="text-light text-decoration-none border-bottom">GWASCO.</a> All Rights Reserved.</p>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+    // Toggle password visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordField = document.getElementById('password');
+    togglePassword.addEventListener('click', function () {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+    });
+
+    // Enable login button when all fields are filled
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginButton = loginForm.querySelector('button[type="submit"]');
+
+    loginForm.addEventListener('input', function () {
+        if (emailInput.checkValidity() && passwordInput.checkValidity()) {
+            loginButton.removeAttribute('disabled');
+        } else {
+            loginButton.setAttribute('disabled', 'true');
+        }
+    });
+</script>
