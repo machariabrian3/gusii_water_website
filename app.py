@@ -1,115 +1,49 @@
-from flask import Flask, render_template
+import logging
+from datetime import timedelta
 
-from database import load_jobs, load_tenders
+from flask import (
+    Flask,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+
+from database import authenticate_user, load_jobs, load_tenders
 
 app = Flask(__name__)
+app.secret_key = 'This is gwasco site launched by MD and created by Devs'
+app.permanent_session_lifetime = timedelta(minutes=30)
 
-JOBS_static = [{
-    "id": 1,
-    "title": "Software Engineer",
-    "location": "San Francisco",
-    "salary": "$100,000 - $120,000"
-}, {
-    "id": 2,
-    "title": "Data Analyst",
-    "location": "New York City",
-    "salary": "$80,000 - $90,000"
-}, {
-    "id": 3,
-    "title": "Marketing Manager",
-    "location": "Chicago",
-    "salary": "$90,000 - $110,000"
-}, {
-    "id": 4,
-    "title": "Graphic Designer",
-    "location": "Los Angeles",
-    "salary": "$70,000 - $80,000"
-}, {
-    "id": 5,
-    "title": "Project Manager",
-    "location": "Seattle",
-    "salary": "$95,000 - $105,000"
-}, {
-    "id": 6,
-    "title": "Sales Representative",
-    "location": "Boston",
-    "salary": "$60,000 - $70,000"
-}, {
-    "id": 7,
-    "title": "Product Manager",
-    "location": "Austin",
-    "salary": "$110,000 - $130,000"
-}, {
-    "id": 8,
-    "title": "Human Resources Specialist",
-    "location": "Washington, D.C.",
-    "salary": "$75,000 - $85,000"
-}, {
-    "id": 9,
-    "title": "Financial Analyst",
-    "location": "San Diego",
-    "salary": "$85,000 - $95,000"
-}, {
-    "id": 10,
-    "title": "Customer Service Representative",
-    "location": "Miami"
-}]
-
-tenders_static = [{
-    "id": 1,
-    "title": "Software Engineer",
-    "location": "San Francisco",
-    "salary": "$100,000 - $120,000"
-}, {
-    "id": 2,
-    "title": "Data Analyst",
-    "location": "New York City",
-    "salary": "$80,000 - $90,000"
-}, {
-    "id": 3,
-    "title": "Marketing Manager",
-    "location": "Chicago",
-    "salary": "$90,000 - $110,000"
-}, {
-    "id": 4,
-    "title": "Graphic Designer",
-    "location": "Los Angeles",
-    "salary": "$70,000 - $80,000"
-}, {
-    "id": 5,
-    "title": "Project Manager",
-    "location": "Seattle",
-    "salary": "$95,000 - $105,000"
-}, {
-    "id": 6,
-    "title": "Sales Representative",
-    "location": "Boston",
-    "salary": "$60,000 - $70,000"
-}, {
-    "id": 7,
-    "title": "Product Manager",
-    "location": "Austin",
-    "salary": "$110,000 - $130,000"
-}, {
-    "id": 8,
-    "title": "Human Resources Specialist",
-    "location": "Washington, D.C.",
-    "salary": "$75,000 - $85,000"
-}, {
-    "id": 9,
-    "title": "Financial Analyst",
-    "location": "San Diego",
-    "salary": "$85,000 - $95,000"
-}, {
-    "id": 10,
-    "title": "Customer Service Representative",
-    "location": "Miami"
-}]
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @app.route("/")
 def index():
   return render_template("home.html")
+
+
+@app.route("/apiv1/login", methods=['POST'])
+def login():
+  if request.method == 'POST':
+    email = request.form.get('email')
+    password = request.form.get('password')
+    user = authenticate_user(email, password)
+    if user:
+      # Successful login, set a session variable and redirect to the admin home page
+      session['user_email'] = email  # Set the user's email in the session
+      logger.info(f"User with email '{email}' authenticated successfully.")
+      return jsonify({'success': True, 'message': 'Login successful'})
+    else:
+      # Authentication failed, set the error message
+      logger.info(f"Failed login attempt for user with email '{email}'.")
+      return jsonify({'success': False, 'message': 'Invalid credentials'})
+
+  # Pass the error message to the template
+  return jsonify({'success': False, 'message': 'Invalid request'})
 
 
 @app.route("/apiv1/about")
@@ -167,6 +101,24 @@ def tenders():
 def careers():
   jobs = load_jobs()
   return render_template("careers.html", jobs=jobs)
+
+
+@app.route("/apiv1/admin/home")
+def admin_home():
+  user_email = session.get('user_email')
+  if user_email:
+    # User is logged in, render the admin home page
+    return render_template("admin_home.html", user_email=user_email)
+  else:
+    # User is not logged in, redirect to the login page
+    return redirect(url_for('index'))
+
+
+@app.route("/apiv1/logout")
+def logout():
+  # Clear the session (logout)
+  session.pop('user_email', None)
+  return redirect(url_for('index'))
 
 
 if __name__ == "__main__":

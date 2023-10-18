@@ -1,0 +1,106 @@
+<style>
+  /* Custom fade-in animation for dropdown */
+  .dropdown-animated {
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Style adjustments for the dropdown */
+  .dropdown-menu {
+    border: none;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .dropdown-item {
+    font-size: 16px;
+    transition: all 0.3s; 
+  }
+
+  .dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.05); /* Increase size on hover for a pop effect */
+    border-left: 3px solid #17a2b8; /* Add a border on hover */
+    padding-left: 16px; /* Adjust padding to accommodate the border */
+  }
+
+  .navbar-nav .nav-link:hover {
+    color: #17a2b8;
+  }
+  .navbar-nav .nav-item.dropdown:hover .dropdown-menu {
+    display: block;
+  }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top" aria-label="Fifth navbar example">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <img src="/static/logo.png" alt="Logo" width="80">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarsExample05">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="/apiv1/logout">Customer Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/apiv1/admin/home">Admin Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/apiv1/about">About Us</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Our Services</a>
+          <ul class="dropdown-menu dropdown-animated" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="/apiv1/water-supply">Water Supply</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/apiv1/sewerage-services">Sewerage Services</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/apiv1/exhauster-services">Exhauster Services</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/apiv1/bowser-services">Bowser Services</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/apiv1/collapsible-services">Collapsible Tank</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Opportunities</a>
+          <ul class="dropdown-menu dropdown-animated" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="/apiv1/tenders">Tenders</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/apiv1/careers">Career</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/apiv1/portfolio">Portfolio</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/apiv1/contact">Contact</a>
+        </li>
+        
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ user_email }}</a>
+          <ul class="dropdown-menu dropdown-animated" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/apiv1/logout">Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+      
+    </div>
+  </div>
+</nav>
+<div style="height:60px;"></div>

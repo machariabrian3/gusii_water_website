@@ -48,16 +48,25 @@
       </div>
       <div class="col-lg-3 col-md-6 mb-4 mb-md-0">
           <h4 class="mb-4">Login</h4>
-          <form id="loginForm">
+          {% if error %}
+          <div class="alert alert-danger" role="alert">
+              {{ error }}
+          </div>
+          {% endif %}
+        <div id="errorMessage" class="alert alert-danger" role="alert" style="display: none;"></div>
+
+          <form id="loginForm" method="POST" action="/apiv1/login">
               <div class="mb-3">
                   <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" required>
+                  <input type="email" class="form-control" id="email" name="email"  value="{{
+                      request.form.email }}" required>
                   <div class="invalid-feedback">Please provide a valid email.</div>
               </div>
               <div class="mb-3">
                   <label for="password" class="form-label">Password</label>
                   <div class="input-group">
-                      <input type="password" class="form-control" id="password" name="password" required>
+                      <input type="password" class="form-control" id="password" name="password" value="{{
+                          request.form.password }}" required>
                       <span class="input-group-text">
                           <i class="fas fa-eye" id="togglePassword"></i>
                       </span>
@@ -67,6 +76,7 @@
               <button type="submit" class="btn btn-primary" disabled>Login</button>
           </form>
       </div>
+
     </div>
   </div>
 
@@ -78,6 +88,7 @@
     </div>
   </div>
 </footer>
+
 <script>
     // Toggle password visibility
     const togglePassword = document.getElementById('togglePassword');
@@ -100,4 +111,43 @@
             loginButton.setAttribute('disabled', 'true');
         }
     });
+
+  loginForm.addEventListener('submit', function (event) {
+      event.preventDefault();  // Prevent the default form submission
+      const formData = new FormData(loginForm);  // Create a FormData object from the form
+
+      fetch('/apiv1/login', {
+          method: 'POST',
+          body: formData  // Send the FormData object
+      })
+      .then(response => response.text())  // Read the response as text
+      .then(text => {
+          console.log('Response text:', text);  // Log the response text
+          try {
+              const data = JSON.parse(text);  // Try to parse the response text as JSON
+              if (data && data.success) {
+                  // Successful login, redirect to the admin home page
+                  window.location.replace('/apiv1/admin/home');
+              } else {
+                  // Authentication failed, show an error message
+                  const errorMessage = document.getElementById('errorMessage');
+                  errorMessage.innerText = data && data.message ? data.message : 'Unknown error. Please try again.';
+                  errorMessage.style.display = 'block';
+              }
+          } catch (error) {
+              console.error('Error parsing JSON:', error);
+              const errorMessage = document.getElementById('errorMessage');
+              errorMessage.innerText = 'Error parsing server response. Please try again later.';
+              errorMessage.style.display = 'block';
+          }
+      })
+      .catch(error => {
+          console.error('Network error:', error);
+          const errorMessage = document.getElementById('errorMessage');
+          errorMessage.innerText = 'Network error. Please try again later.';
+          errorMessage.style.display = 'block';
+      });
+  });
+
 </script>
+

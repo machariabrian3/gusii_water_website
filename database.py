@@ -28,3 +28,13 @@ def load_tenders():
     for row in result.all():
       tenders.append(row)
     return tenders
+
+
+def authenticate_user(email, password):
+  with engine.connect() as conn:
+      result = conn.execute(
+          text('SELECT * FROM accounts WHERE email = :email AND password = :password and status = "ACTIVE"'),
+          {'email': email, 'password': password}
+      )
+      user = result.fetchone()
+      return user
