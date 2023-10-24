@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Tenders - GWASCO | Gusii Water & Sanitation Co Ltd </title>
+    <link rel="icon" type="image/x-icon" href="/static/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      #banner {
+        object-fit: fill-box;
+        height: 500px;
+        width: 100%;
+      }
+      .image-container {
+          width: 25%;
+          padding: 10px;
+      }
+      .image-container img {
+          width: 100%;
+          height: auto;
+      }
+      #portfolio {
+          display: flex;
+          flex-wrap: wrap;
+      }
+      /* Style for each figure */
+      figure {
+        margin: 0;
+        padding: 0;
+        position: relative;
+        overflow: hidden;
+      }
+
+
+
+      /* Hover effect to show caption on image hover */
+      figure:hover img {
+        opacity: 0.7;
+      }
+
+      /* Style for the caption */
+      figcaption {
+        position: absolute;
+        bottom: 0; /* Position at the bottom */
+        left: 0;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        color: var(--c, #fff);
+        padding: 10px;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+      #figimages {
+        display: block;
+        width: 100%; /* Adjust to 100% width */
+        height: 300px;
+        object-fit: cover;
+        transition: opacity 0.3s;
+      }
+      figure:hover figcaption {
+        opacity: 1;
+      }
+
+      /* Style the table */
+      .table {
+          width: 100%;
+          border-collapse: collapse;
+      }
+
+      .table th, .table td {
+          padding: 8px 10px;
+          text-align: left;
+      }
+
+      .table th {
+          background-color: #f5f5f5;
+      }
+
+      /* Style the action buttons */
+      .action-buttons button {
+          margin-right: 5px;
+      }
+
+      /* Center the icons in the buttons */
+      .action-buttons .btn i {
+          vertical-align: middle;
+          margin-right: 5px;
+      }
+
+      /* Make the buttons look like links */
+      .action-buttons .btn {
+          border: none;
+          background: none;
+          padding: 0;
+          cursor: pointer;
+          color: #007bff;
+      }
+
+      /* Style the container and set up flexbox */
+      body {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh; /* This ensures the body takes at least the full height of the viewport. */
+          margin: 0;
+          padding: 0;
+      }
+
+      .container {
+          flex: 1; /* This pushes the footer to the bottom of the page. */
+      }
+
+      /* Style the footer */
+      .footer {
+          text-align: center;
+          background-color: #f5f5f5;
+          padding: 10px;
+          /* Add any other styling you prefer for your footer. */
+      }
+      #addTenderButton {
+          height: 50px; /* Adjust the height as needed */
+          padding: 5px 10px; /* Adjust padding to control the size */
+          font-size: 14px; /* Adjust the font size if needed */
+      }
+
+      .active-tender {
+          background-color: #c3e6cb; /* Green background color */
+      }
+      .closed-tender {
+          background-color: #f5c6cb; /* Red background color */
+      }
+
+      #addTenderForm {
+          background-color: #fff;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+          max-width: 500px;
+          margin: 0 auto;
+      }
+
+      #tenderForm .form-group {
+          margin-bottom: 15px;
+      }
+
+      /* Style for the modal */
+    
+
+      /* Style for the form fields with floating labels */
+      .form-floating .form-control {
+          padding: 1rem 0.75rem;
+      }
+
+      .form-floating label {
+          position: absolute;
+          top: 0;
+          left: 0;
+          padding: 1rem 0.75rem;
+          pointer-events: none;
+          transition: 0.2s;
+      }
+
+      .form-floating .form-control:focus + label,
+      .form-floating .form-control:not(:placeholder-shown) + label {
+          transform: translateY(-25%);
+          font-size: 0.75rem;
+          color: #007bff;
+      }
+
+
+
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    {% include 'widgets/admin_navbar.html' %}
+    <div style="height:60px;"></div>
+    <div class="container" id="portfolio">
+      <button id="addTenderButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTenderModal">Add Tender</button>
+
+      <div class="modal fade" id="addTenderModal" tabindex="-1" aria-labelledby="addTenderModalLabel" aria-hidden="true" data-backdrop="static">
+          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="addTenderModalLabel">Add New Tender</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                      <form id="tenderForm" enctype="multipart/form-data" action="/apiv1/tender/create" method="POST">
+                         
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Title" required>
+                            <label for="title">Title</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="description" name="description" placeholder="Description" required></textarea>
+                            <label for="description">Description</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="publishDate" name="publishDate" required>
+                            <label for="publishDate">Publish Date</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control" id="closingDate" name="closingDate" required>
+                            <label for="closingDate">Closing Date</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                          <input type="file" class="form-control" id="document" name="document" accept="application/pdf" required>
+                            <label for="document">Attach PDF Document</label>
+                        </div>
+                         <div id="filePreview" style="display: none;">
+                             <iframe id="pdfPreview" width="100%" height="500"></iframe>
+                         </div>
+
+                         <script>
+                             const documentInput = document.getElementById('document');
+                             const filePreview = document.getElementById('filePreview');
+                             const pdfPreview = document.getElementById('pdfPreview');
+
+                             documentInput.addEventListener('change', function() {
+                                 const file = documentInput.files[0];
+
+                                 if (file) {
+                                     filePreview.style.display = 'block';
+                                     pdfPreview.src = URL.createObjectURL(file);
+                                 } else {
+                                     filePreview.style.display = 'none';
+                                     pdfPreview.removeAttribute('src');
+                                 }
+                             });
+                         </script>
+                          <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                          </div>
+                      </form>
+                  </div>
+                
+                  <!-- <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  </div> -->
+              </div>
+          </div>
+      </div>
+
+    
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Publish Date</th>
+                    <th>Closing Date</th>
+                    <th>Status</th>
+                    <th>Document URL</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tenderTableBody">
+                {% if tenders %}
+                    {% for tender in tenders %}
+                        <tr class="{% if tender.tender_status == 'ACTIVE' %}active-tender{% else %}closed-tender{% endif %}">
+                            <td>{{ tender.id }}</td>
+                            <td>{{ tender.title }}</td>
+                            <td>{{ tender.description }}</td>
+                            <td>{{ tender.publish_date }}</td>
+                            <td>{{ tender.closing_date }}</td>
+                            <td>{{ tender.tender_status }}</td>
+                            <td>{{ tender.doc_url }}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-primary editTender" data-tender-id="{{ tender.id }}">
+                                    <i class="fas fa-edit"></i> 
+                                </button>
+                                <button class="btn btn-success markClosed" data-tender-id="{{ tender.id }}">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center">No tenders available at the moment.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+  
+
+
+    <div style="height:60px;"></div>
+
+
+
+    <!-- Footer -->
+    {% include 'widgets/footer.html' %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Sample JavaScript code to handle actions
+        $(document).ready(function () {
+            // Add Tender button click event
+            $('#addTenderButton').click(function () {
+                // You can implement your logic to show a form for adding a new tender here
+                // For example, display a modal or navigate to a new page.
+            });
+
+            // Edit Tender button click event
+            $('.editTender').click(function () {
+                var row = $(this).closest('tr');
+                var tenderId = row.find('td:first').text(); // Assuming the ID is in the first column
+                // You can implement your logic to edit the tender with the given ID here
+            });
+
+            // Mark Closed button click event
+            $('.markClosed').click(function () {
+                var row = $(this).closest('tr');
+                var tenderId = row.find('td:first').text(); // Assuming the ID is in the first column
+                // You can implement your logic to mark the tender as closed with the given ID here
+            });
+        });
+
+      
+    </script>
+
+    <script>
+      // Add an event listener to reset the form when the modal is hidden
+      $('#addTenderModal').on('hidden.bs.modal', function () {
+          $('#tenderForm').trigger('reset');
+      });
+
+        // Sample JavaScript code to handle actions
+        $(document).ready(function () {
+            // Validate the form
+            $('#tenderForm').submit(function (event) {
+                event.preventDefault();
+                var title = $('#title').val();
+                var description = $('#description').val();
+                var publishDate = $('#publishDate').val();
+                var closingDate = $('#closingDate').val();
+                var document = $('#document').val();
+
+                if (!title || !description || !publishDate || !closingDate) {
+                    alert('Please fill in all required fields.');
+                } else if (!document) {
+                    alert('Please attach a document.');
+                } else {
+                    var formData = new FormData(this);
+
+                    $.ajax({
+                        url: '/apiv1/tender/create',
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                           
+                          alert('Form submitted successfully.');
+                          $('#addTenderModal').modal('hide');
+                            // Add any additional actions you need here.
+                        },
+                        error: function (error) {
+                          alert('Form submission error:'+error);
+                            console.error('Form submission error:', error);
+                        }
+                    });
+                    
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // Sort tenders by publish date (latest first)
+            var tenders = $('.table tbody tr').get();
+            tenders.sort(function (a, b) {
+                var dateA = new Date($(a).find('td:nth-child(4)').text());
+                var dateB = new Date($(b).find('td:nth-child(4)').text());
+                return dateB - dateA;
+            });
+            $.each(tenders, function (index, tender) {
+                $('.table tbody').append(tender);
+            });
+        });
+    </script>
+
+    <script>
+      // Show the Add Tender form when the button is clicked
+      $('#addTenderButton').click(function () {
+          $('#addTenderForm').show();
+      });
+
+      // Hide the Add Tender form when the cancel button is clicked
+      $('#cancelAddTender').click(function () {
+          $('#addTenderForm').hide();
+      });
+
+
+    </script>
+
+  </body>
+</html>

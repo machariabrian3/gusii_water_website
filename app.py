@@ -1,17 +1,25 @@
 import logging
+import os
 from datetime import timedelta
 
 from flask import (
-    Flask,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
+  Flask,
+  jsonify,
+  redirect,
+  render_template,
+  request,
+  session,
+  url_for,
 )
+from werkzeug.utils import secure_filename
 
-from database import authenticate_user, load_jobs, load_tenders
+from database import (
+  authenticate_user,
+  insert_tender,
+  load_all_tenders,
+  load_jobs,
+  load_tenders,
+)
 
 app = Flask(__name__)
 app.secret_key = 'This is gwasco site launched by MD and created by Devs'
@@ -19,6 +27,16 @@ app.permanent_session_lifetime = timedelta(minutes=30)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+UPLOAD_FOLDER = 'uploads'
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+def allowed_file(filename):
+  return '.' in filename and filename.rsplit(
+      '.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route("/")
@@ -35,6 +53,7 @@ def login():
     if user:
       # Successful login, set a session variable and redirect to the admin home page
       session['user_email'] = email  # Set the user's email in the session
+      session['id'] = user.id
       logger.info(f"User with email '{email}' authenticated successfully.")
       return jsonify({'success': True, 'message': 'Login successful'})
     else:
@@ -119,6 +138,61 @@ def logout():
   # Clear the session (logout)
   session.pop('user_email', None)
   return redirect(url_for('index'))
+
+
+@app.route("/apiv1/admin_tenders")
+def admin_tenders():
+  user_email = session.get('user_email')
+  if user_email:
+    tenders = load_all_tenders()
+    return render_template("admin_tenders.html",
+                           tenders=tenders,
+                           user_email=user_email)
+  else:
+    # User is not logged in, redirect to the login page
+    return redirect(url_for('index'))
+
+
+@app.route("/apiv1/tender/create", methods=['POST'])
+def create_tender():
+    data = request.form
+    logger.info(f"Received form data: {data}")
+    # Validate form data
+    title = data.get("title")
+    description = data.get("description")
+    publish_date = data.get("publishDate")
+    closing_date = data.get("closingDate")
+    document = request.files.get("document")
+
+    logger.info(f"Data received before validation: {data.to_dict()}")
+
+    if not title or not description or not publish_date or not closing_date or not document:
+        error_message = "Please fill in all required fields."
+        logger.error(error_message)
+        return error_message, 400  # Return an error response with a 400 status code
+
+    if document and allowed_file(document.filename):
+        # Securely save the uploaded file
+        filename = secure_filename(document.filename)
+        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+        document.save(save_path)
+    else:
+        error_message = "Invalid or missing file. Allowed file types: pdf, doc, docx"
+        logger.error(error_message)
+        return error_message, 400  # Return an error response with a 400 status code
+    try:
+        insert_tender(data, filename)
+        logger.info("Tender inserted successfully.")
+    except Exception as e:
+        logger.error(f"Error inserting tender: {str(e)}")
+        return str(e), 400  # Return an error response with a 400 status code
+
+    tenders = load_all_tenders()
+    return render_template("admin_tenders.html", tenders=tenders)
 
 
 if __name__ == "__main__":
