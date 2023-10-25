@@ -15,6 +15,7 @@ from werkzeug.utils import secure_filename
 
 from database import (
   authenticate_user,
+  close_tender,
   insert_tender,
   load_all_tenders,
   load_jobs,
@@ -193,6 +194,13 @@ def create_tender():
 
     tenders = load_all_tenders()
     return render_template("admin_tenders.html", tenders=tenders)
+
+@app.route("/apiv1/tender/close", methods=['post'])
+def close_tender_funct():
+  data = request.get_json()
+  close_tender(data)
+  tenders = load_all_tenders()
+  return render_template("admin_tenders.html", tenders=tenders)
 
 
 if __name__ == "__main__":

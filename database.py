@@ -38,7 +38,7 @@ def load_tenders():
 
 def load_all_tenders():
   with engine.connect() as conn:
-    result = conn.execute(text('select * from tenders'))
+    result = conn.execute(text('select * from tenders order by id desc'))
     tenders = []
     for row in result.all():
       tenders.append(row)
@@ -56,7 +56,6 @@ def authenticate_user(email, password):
         })
     user = result.fetchone()
     return user
-
 
 def insert_tender(data, filename):
   user_id = session.get('id')
@@ -89,3 +88,32 @@ def insert_tender(data, filename):
       logger.info(f"Tender inserted successfully. : {str(parameters)}")
     except Exception as e:
       logger.error(f"Error inserting tender(db): {str(e)}")
+
+
+def close_tender(data):
+  user_id = session.get('id')
+
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        UPDATE tenders
+        SET tender_status = 'CLOSED',
+            updated_date = CURRENT_TIMESTAMP,
+            updated_by = :updated_by
+        WHERE id = :tender_id
+    """)
+    parameters = {
+        "updated_by": user_id,  # Updated_by field
+        "tender_id": data["tender_id"],  # The tender ID you want to update
+    }
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"Tender updated successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error updated tender(db): {str(e)}")
+
