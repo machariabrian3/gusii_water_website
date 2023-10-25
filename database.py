@@ -57,6 +57,7 @@ def authenticate_user(email, password):
     user = result.fetchone()
     return user
 
+
 def insert_tender(data, filename):
   user_id = session.get('id')
 
@@ -117,3 +118,71 @@ def close_tender(data):
     except Exception as e:
       logger.error(f"Error updated tender(db): {str(e)}")
 
+
+def load_all_careers():
+  with engine.connect() as conn:
+    result = conn.execute(text('select * from careers order by id desc'))
+    careers = []
+    for row in result.all():
+      careers.append(row)
+    return careers
+
+
+def insert_career(data, filename):
+  user_id = session.get('id')
+
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        INSERT INTO careers
+        (created_by, title, requirements, responsibilities, doc_url, job_status, created_date, updated_date)
+        VALUES
+        (:created_by, :title, :requirements, :responsibilities, :doc_url, 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    """)
+
+    parameters = {
+        "created_by": user_id,
+        "title": data["title"],
+        "requirements": data["requirements"],
+        "responsibilities": data["responsibilities"],
+        "doc_url": filename
+    }
+
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"Career inserted successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error inserting career(db): {str(e)}")
+
+
+def close_careers(data):
+  user_id = session.get('id')
+
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        UPDATE careers
+        SET job_status = 'CLOSED',
+            updated_date = CURRENT_TIMESTAMP,
+            updated_by = :updated_by
+        WHERE id = :career_id
+    """)
+    parameters = {
+        "updated_by": user_id,  # Updated_by field
+        "career_id": data["career_id"],  # The tender ID you want to update
+    }
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"Career updated successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error updated career(db): {str(e)}")

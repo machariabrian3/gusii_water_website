@@ -15,8 +15,11 @@ from werkzeug.utils import secure_filename
 
 from database import (
   authenticate_user,
+  close_careers,
   close_tender,
+  insert_career,
   insert_tender,
+  load_all_careers,
   load_all_tenders,
   load_jobs,
   load_tenders,
@@ -154,46 +157,60 @@ def admin_tenders():
     return redirect(url_for('index'))
 
 
+@app.route("/apiv1/admin_careers")
+def admin_careers():
+  user_email = session.get('user_email')
+  if user_email:
+    careers = load_all_careers()
+    return render_template("admin_careers.html",
+                           careers=careers,
+                           user_email=user_email)
+  else:
+    # User is not logged in, redirect to the login page
+    return redirect(url_for('index'))
+
+
 @app.route("/apiv1/tender/create", methods=['POST'])
 def create_tender():
-    data = request.form
-    logger.info(f"Received form data: {data}")
-    # Validate form data
-    title = data.get("title")
-    description = data.get("description")
-    publish_date = data.get("publishDate")
-    closing_date = data.get("closingDate")
-    document = request.files.get("document")
+  data = request.form
+  logger.info(f"Received form data: {data}")
+  # Validate form data
+  title = data.get("title")
+  description = data.get("description")
+  publish_date = data.get("publishDate")
+  closing_date = data.get("closingDate")
+  document = request.files.get("document")
 
-    logger.info(f"Data received before validation: {data.to_dict()}")
+  logger.info(f"Data received before validation: {data.to_dict()}")
 
-    if not title or not description or not publish_date or not closing_date or not document:
-        error_message = "Please fill in all required fields."
-        logger.error(error_message)
-        return error_message, 400  # Return an error response with a 400 status code
+  if not title or not description or not publish_date or not closing_date or not document:
+    error_message = "Please fill in all required fields."
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
 
-    if document and allowed_file(document.filename):
-        # Securely save the uploaded file
-        filename = secure_filename(document.filename)
-        save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+  if document and allowed_file(document.filename):
+    # Securely save the uploaded file
+    filename = secure_filename(document.filename)
+    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-        # Ensure the directory exists
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-        document.save(save_path)
-    else:
-        error_message = "Invalid or missing file. Allowed file types: pdf, doc, docx"
-        logger.error(error_message)
-        return error_message, 400  # Return an error response with a 400 status code
-    try:
-        insert_tender(data, filename)
-        logger.info("Tender inserted successfully.")
-    except Exception as e:
-        logger.error(f"Error inserting tender: {str(e)}")
-        return str(e), 400  # Return an error response with a 400 status code
+    document.save(save_path)
+  else:
+    error_message = "Invalid or missing file. Allowed file types: pdf, doc, docx"
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
+  try:
+    insert_tender(data, filename)
+    logger.info("Tender inserted successfully.")
+  except Exception as e:
+    logger.error(f"Error inserting tender: {str(e)}")
+    return str(e), 400  # Return an error response with a 400 status code
 
-    tenders = load_all_tenders()
-    return render_template("admin_tenders.html", tenders=tenders)
+  tenders = load_all_tenders()
+  return render_template("admin_tenders.html", tenders=tenders)
+
 
 @app.route("/apiv1/tender/close", methods=['post'])
 def close_tender_funct():
@@ -202,6 +219,53 @@ def close_tender_funct():
   tenders = load_all_tenders()
   return render_template("admin_tenders.html", tenders=tenders)
 
+
+@app.route("/apiv1/career/create", methods=['POST'])
+def create_career():
+  data = request.form
+  logger.info(f"Received form data: {data}")
+  # Validate form data
+  title = data.get("title")
+  requirements = data.get("requirements")
+  responsibilities = data.get("responsibilities")
+  document = request.files.get("document")
+
+  logger.info(f"Data received before validation: {data.to_dict()}")
+
+  if not title or not requirements or not responsibilities or not document:
+    error_message = "Please fill in all required fields."
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
+
+  if document and allowed_file(document.filename):
+    # Securely save the uploaded file
+    filename = secure_filename(document.filename)
+    save_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    document.save(save_path)
+  else:
+    error_message = "Invalid or missing file. Allowed file types: pdf, doc, docx"
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
+  try:
+    insert_career(data, filename)
+    logger.info("Opportunity inserted successfully.")
+  except Exception as e:
+    logger.error(f"Opportunity inserting tender: {str(e)}")
+    return str(e), 400  # Return an error response with a 400 status code
+
+  careers = load_all_careers()
+  return render_template("admin_careers.html", careers=careers)
+
+@app.route("/apiv1/career/close", methods=['post'])
+def close_career_funct():
+  data = request.get_json()
+  close_careers(data)
+  careers = load_all_careers()
+  return render_template("admin_careers.html", careers=careers)
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=8080, debug=True)
