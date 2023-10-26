@@ -186,3 +186,12 @@ def close_careers(data):
       logger.info(f"Career updated successfully. : {str(parameters)}")
     except Exception as e:
       logger.error(f"Error updated career(db): {str(e)}")
+
+
+def load_all_images():
+  with engine.connect() as conn:
+    result = conn.execute(text('select * from gallery order by id desc'))
+    galleries = []
+    for row in result.all():
+      galleries.append(row)
+    return galleries

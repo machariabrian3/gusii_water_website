@@ -3,26 +3,27 @@ import os
 from datetime import timedelta
 
 from flask import (
-  Flask,
-  jsonify,
-  redirect,
-  render_template,
-  request,
-  session,
-  url_for,
+    Flask,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
 )
 from werkzeug.utils import secure_filename
 
 from database import (
-  authenticate_user,
-  close_careers,
-  close_tender,
-  insert_career,
-  insert_tender,
-  load_all_careers,
-  load_all_tenders,
-  load_jobs,
-  load_tenders,
+    authenticate_user,
+    close_careers,
+    close_tender,
+    insert_career,
+    insert_tender,
+    load_all_careers,
+    load_all_images,
+    load_all_tenders,
+    load_jobs,
+    load_tenders,
 )
 
 app = Flask(__name__)
@@ -260,12 +261,27 @@ def create_career():
   careers = load_all_careers()
   return render_template("admin_careers.html", careers=careers)
 
+
 @app.route("/apiv1/career/close", methods=['post'])
 def close_career_funct():
   data = request.get_json()
   close_careers(data)
   careers = load_all_careers()
   return render_template("admin_careers.html", careers=careers)
+
+
+@app.route("/apiv1/admin_portfolio")
+def admin_portfolio():
+  user_email = session.get('user_email')
+  if user_email:
+    galleries = load_all_images()
+    return render_template("admin_portfolio.html",
+                           galleries=galleries,
+                           user_email=user_email)
+  else:
+    # User is not logged in, redirect to the login page
+    return redirect(url_for('index'))
+
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", port=8080, debug=True)
