@@ -16,12 +16,15 @@ from werkzeug.utils import secure_filename
 from database import (
     authenticate_user,
     close_careers,
+    close_gallery,
     close_tender,
     insert_career,
+    insert_images,
     insert_tender,
     load_all_careers,
     load_all_images,
     load_all_tenders,
+    load_gallery,
     load_jobs,
     load_tenders,
 )
@@ -34,14 +37,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 UPLOAD_FOLDER = 'uploads'
+IMG_UPLOAD_FOLDER = 'static/uploads/gallery'
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+ALLOWED_IMG_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['IMG_UPLOAD_FOLDER'] = IMG_UPLOAD_FOLDER
 
 
 def allowed_file(filename):
   return '.' in filename and filename.rsplit(
       '.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def allowed_imgs(filename):
+  return '.' in filename and filename.rsplit(
+      '.', 1)[1].lower() in ALLOWED_IMG_EXTENSIONS
 
 
 @app.route("/")
@@ -82,7 +93,8 @@ def contact():
 
 @app.route("/apiv1/portfolio")
 def portfolio():
-  return render_template("portfolio.html")
+  galleries = load_gallery()
+  return render_template("portfolio.html", galleries=galleries)
 
 
 @app.route("/apiv1/covid19")
@@ -281,6 +293,55 @@ def admin_portfolio():
   else:
     # User is not logged in, redirect to the login page
     return redirect(url_for('index'))
+
+
+@app.route("/apiv1/gallery/create", methods=['POST'])
+def create_gallery():
+  data = request.form
+  logger.info(f"Received form data: {data}")
+  # Validate form data
+  title = data.get("title")
+  location = data.get("location")
+  description = data.get("description")
+  document = request.files.get("document")
+
+  logger.info(f"Data received before validation: {data.to_dict()}")
+
+  if not title or not location or not description or not document:
+    error_message = "Please fill in all required fields."
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
+
+  if document and allowed_imgs(document.filename):
+    # Securely save the uploaded file
+    filename = secure_filename(document.filename)
+    save_path = os.path.join(app.config['IMG_UPLOAD_FOLDER'], filename)
+
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+    document.save(save_path)
+  else:
+    error_message = "Invalid or missing file. Allowed file types: img, jpg, jpeg"
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
+  try:
+    insert_images(data, filename)
+    logger.info("Image inserted successfully.")
+  except Exception as e:
+    logger.error(f"Image inserting tender: {str(e)}")
+    return str(e), 400  # Return an error response with a 400 status code
+
+  galleries = load_all_images()
+  return render_template("admin_portfolio.html", galleries=galleries)
+
+
+@app.route("/apiv1/gallery/close", methods=['post'])
+def close_img_funct():
+  data = request.get_json()
+  close_gallery(data)
+  galleries = load_all_images()
+  return render_template("admin_portfolio.html", galleries=galleries)
 
 
 if __name__ == "__main__":

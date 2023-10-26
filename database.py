@@ -195,3 +195,73 @@ def load_all_images():
     for row in result.all():
       galleries.append(row)
     return galleries
+
+
+def insert_images(data, filename):
+  user_id = session.get('id')
+
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        INSERT INTO gallery
+        (created_by, title, location, description, doc_url, photo_status, created_date, updated_date)
+        VALUES
+        (:created_by, :title, :location, :description, :doc_url, 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    """)
+
+    parameters = {
+        "created_by": user_id,
+        "title": data["title"],
+        "location": data["location"],
+        "description": data["description"],
+        "doc_url": filename
+    }
+
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"Image inserted successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error inserting images(db): {str(e)}")
+
+
+def close_gallery(data):
+  user_id = session.get('id')
+
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        UPDATE gallery
+        SET photo_status = 'CLOSED',
+            updated_date = CURRENT_TIMESTAMP,
+            updated_by = :updated_by
+        WHERE id = :gallery_id
+    """)
+    parameters = {
+        "updated_by": user_id,  # Updated_by field
+        "gallery_id": data["gallery_id"],  # The tender ID you want to update
+    }
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"Image updated successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error updated image(db): {str(e)}")
+
+
+def load_gallery():
+  with engine.connect() as conn:
+    result = conn.execute(
+        text('select * from gallery where photo_status ="ACTIVE"'))
+    galleries = []
+    for row in result.all():
+      galleries.append(row)
+    return galleries
