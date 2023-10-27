@@ -265,3 +265,84 @@ def load_gallery():
     for row in result.all():
       galleries.append(row)
     return galleries
+
+
+def load_all_users():
+  with engine.connect() as conn:
+    result = conn.execute(text('select * from accounts order by id desc'))
+    users = []
+    for row in result.all():
+      users.append(row)
+    return users
+
+
+def insert_user(data):
+  user_id = session.get('id')
+  user_role = session.get('role')
+
+  logger.error(f"User not authenticated : {str(user_role)}")
+
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  if user_role != 'ADMIN':
+    logger.error("User not admin")
+    return "User not admin"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        INSERT INTO accounts
+        (created_by, username, email, password, status, created_date, updated_date,role)
+        VALUES
+        (:created_by, :username, :email, :password, 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,'USER')
+    """)
+
+    parameters = {
+        "username": data["username"],
+        "email": data["email"],
+        "password": data["password"],
+        "created_by": user_id,
+    }
+
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"User inserted successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error inserting user(db): {str(e)}")
+
+
+def delete_user(data):
+  user_id = session.get('id')
+  user_role = session.get('role')
+
+  logger.error(f"User ===> : {str(user_role)}")
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  if user_role != 'ADMIN':
+    logger.error("User not ADMIN")
+    return "User not admin"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        UPDATE accounts
+        SET status = 'DELETED',
+            updated_date = CURRENT_TIMESTAMP,
+            updated_by = :updated_by
+        WHERE id = :user_id
+    """)
+    parameters = {
+        "updated_by": user_id,  # Updated_by field
+        "user_id": data["user_id"],  # The tender ID you want to update
+    }
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"User updated successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error updated user(db): {str(e)}")

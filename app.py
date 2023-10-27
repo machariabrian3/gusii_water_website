@@ -3,30 +3,33 @@ import os
 from datetime import timedelta
 
 from flask import (
-    Flask,
-    jsonify,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
+  Flask,
+  jsonify,
+  redirect,
+  render_template,
+  request,
+  session,
+  url_for,
 )
 from werkzeug.utils import secure_filename
 
 from database import (
-    authenticate_user,
-    close_careers,
-    close_gallery,
-    close_tender,
-    insert_career,
-    insert_images,
-    insert_tender,
-    load_all_careers,
-    load_all_images,
-    load_all_tenders,
-    load_gallery,
-    load_jobs,
-    load_tenders,
+  authenticate_user,
+  close_careers,
+  close_gallery,
+  close_tender,
+  delete_user,
+  insert_career,
+  insert_images,
+  insert_tender,
+  insert_user,
+  load_all_careers,
+  load_all_images,
+  load_all_tenders,
+  load_all_users,
+  load_gallery,
+  load_jobs,
+  load_tenders,
 )
 
 app = Flask(__name__)
@@ -70,6 +73,7 @@ def login():
       # Successful login, set a session variable and redirect to the admin home page
       session['user_email'] = email  # Set the user's email in the session
       session['id'] = user.id
+      session['role'] = user.role
       logger.info(f"User with email '{email}' authenticated successfully.")
       return jsonify({'success': True, 'message': 'Login successful'})
     else:
@@ -342,6 +346,53 @@ def close_img_funct():
   close_gallery(data)
   galleries = load_all_images()
   return render_template("admin_portfolio.html", galleries=galleries)
+
+
+@app.route("/apiv1/admin_users")
+def admin_users():
+  user_email = session.get('user_email')
+  if user_email:
+    users = load_all_users()
+    return render_template("admin_users.html",
+                           users=users,
+                           user_email=user_email)
+  else:
+    # User is not logged in, redirect to the login page
+    return redirect(url_for('index'))
+
+
+@app.route("/apiv1/user/create", methods=['POST'])
+def create_users():
+  data = request.form
+  logger.info(f"Received form data: {data}")
+  # Validate form data
+  username = data.get("username")
+  email = data.get("email")
+  password = data.get("password")
+
+  logger.info(f"Data received before validation: {data.to_dict()}")
+
+  if not username or not email or not password:
+    error_message = "Please fill in all required fields."
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
+
+  try:
+    insert_user(data)
+    logger.info("Image inserted successfully.")
+  except Exception as e:
+    logger.error(f"Error inserting users: {str(e)}")
+    return str(e), 400  # Return an error response with a 400 status code
+
+  users = load_all_users()
+  return render_template("admin_users.html", users=users)
+
+@app.route("/apiv1/user/close", methods=['post'])
+def delete_user_funct():
+  data = request.get_json()
+  delete_user(data)
+  users = load_all_users()
+  return render_template("admin_users.html", users=users)
 
 
 if __name__ == "__main__":
