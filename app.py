@@ -30,6 +30,12 @@ from database import (
   load_gallery,
   load_jobs,
   load_tenders,
+  load_total_users,
+  load_active_users,
+  load_total_tenders,
+  load_active_tenders,
+  load_active_careers,
+  load_total_careers
 )
 
 app = Flask(__name__)
@@ -147,8 +153,15 @@ def careers():
 def admin_home():
   user_email = session.get('user_email')
   if user_email:
-    # User is logged in, render the admin home page
-    return render_template("admin_home.html", user_email=user_email)
+    total_users = load_total_users()
+    active_users = load_active_users()
+    total_careers = load_total_careers()
+    active_careers = load_active_careers()
+    total_tenders = load_total_tenders()
+    active_tenders = load_active_tenders()
+
+    
+    return render_template("admin_home.html", user_email=user_email, total_users=total_users, active_users=active_users, total_careers=total_careers, active_careers=active_careers, total_tenders=total_tenders, active_tenders=active_tenders)
   else:
     # User is not logged in, redirect to the login page
     return redirect(url_for('index'))

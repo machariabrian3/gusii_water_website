@@ -346,3 +346,40 @@ def delete_user(data):
       logger.info(f"User updated successfully. : {str(parameters)}")
     except Exception as e:
       logger.error(f"Error updated user(db): {str(e)}")
+
+
+def load_total_users():
+  with engine.connect() as conn:
+      result = conn.execute(text('SELECT COUNT(*) FROM accounts'))
+      total_users = result.scalar()
+      return total_users
+
+def load_active_users():
+  with engine.connect() as conn:
+      result = conn.execute(text('SELECT COUNT(*) FROM accounts WHERE status = "ACTIVE"'))
+      active_users = result.scalar()
+      return active_users
+
+def load_total_tenders():
+  with engine.connect() as conn:
+      result = conn.execute(text('SELECT COUNT(*) FROM tenders'))
+      total_tenders = result.scalar()
+      return total_tenders
+
+def load_active_tenders():
+  with engine.connect() as conn:
+      result = conn.execute(text('SELECT COUNT(*) FROM tenders WHERE tender_status = "ACTIVE"'))
+      active_tenders = result.scalar()
+      return active_tenders
+
+def load_active_careers():
+  with engine.connect() as conn:
+      result = conn.execute(text('SELECT COUNT(*) FROM careers WHERE job_status = "ACTIVE"'))
+      active_careers = result.scalar()
+      return active_careers
+
+def load_total_careers():
+  with engine.connect() as conn:
+      result = conn.execute(text('SELECT COUNT(*) FROM careers'))
+      total_careers = result.scalar()
+      return total_careers
