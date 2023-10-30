@@ -36,7 +36,9 @@ from database import (
   load_active_tenders,
   load_active_careers,
   load_total_careers,
-  load_all_kpis
+  load_all_kpis,
+  delete_kpi,
+  insert_kpis
 )
 
 app = Flask(__name__)
@@ -420,6 +422,38 @@ def admin_kpis():
   else:
     # User is not logged in, redirect to the login page
     return redirect(url_for('index'))
+
+@app.route("/apiv1/kpi/create", methods=['POST'])
+def create_kpi():
+  data = request.form
+  logger.info(f"Received form data: {data}")
+  # Validate form data
+  kpiname = data.get("kpiname")
+  value = data.get("value")
+
+  logger.info(f"Data received before validation: {data.to_dict()}")
+
+  if not kpiname or not value:
+    error_message = "Please fill in all required fields."
+    logger.error(error_message)
+    return error_message, 400  # Return an error response with a 400 status code
+
+  try:
+    insert_kpis(data)
+    logger.info("KPI inserted successfully.")
+  except Exception as e:
+    logger.error(f"Error inserting kpi: {str(e)}")
+    return str(e), 400  # Return an error response with a 400 status code
+
+  kpis = load_all_kpis()
+  return render_template("admin_kpis.html", kpis=kpis)
+
+@app.route("/apiv1/kpi/close", methods=['post'])
+def delete_kpi_funct():
+  data = request.get_json()
+  delete_kpi(data)
+  kpis = load_all_kpis()
+  return render_template("admin_kpis.html", kpis=kpis)
 
 
 if __name__ == "__main__":

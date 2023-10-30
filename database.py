@@ -391,3 +391,71 @@ def load_all_kpis():
     for row in result.all():
       kpis.append(row)
     return kpis
+
+
+def insert_kpis(data):
+  user_id = session.get('id')
+  user_role = session.get('role')
+
+  logger.error(f"User not authenticated : {str(user_role)}")
+
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  if user_role != 'ADMIN':
+    logger.error("User not admin")
+    return "User not admin"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        INSERT INTO kpis
+        (created_by, title, value, created_date, updated_date)
+        VALUES
+        (:created_by, :title, :value, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    """)
+
+    parameters = {
+        "title": data["kpiname"],
+        "value": data["value"],
+        "created_by": user_id,
+    }
+
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"Kpi inserted successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error inserting kpi(db): {str(e)}")
+
+
+
+def delete_kpi(data):
+  user_id = session.get('id')
+  user_role = session.get('role')
+
+  logger.error(f"User ===> : {str(user_role)}")
+  if user_id is None:
+    logger.error("User not authenticated")
+    return "User not authenticated"
+
+  if user_role != 'ADMIN':
+    logger.error("User not ADMIN")
+    return "User not admin"
+
+  logger.info(f"Data received here : {str(data)}")
+
+  with engine.connect() as conn:
+    query = text("""
+        DELETE FROM kpis
+        WHERE id = :kpi_id
+    """)
+    parameters = {
+        "kpi_id": data["kpi_id"],  # The tender ID you want to update
+    }
+    try:
+      conn.execute(query, parameters)
+      logger.info(f"Kpi deleted successfully. : {str(parameters)}")
+    except Exception as e:
+      logger.error(f"Error deleting kpi(db): {str(e)}")

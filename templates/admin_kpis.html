@@ -191,8 +191,8 @@
                   <div class="modal-body">
                       <form id="kpiForm" action="/apiv1/kpi/create" method="POST">
                           <div class="form-floating mb-3">
-                              <input type="text" class="form-control" id="kpi" name="kpi" placeholder="kpi" required>
-                              <label for="kpi">Key Performance Indicator</label>
+                              <input type="text" class="form-control" id="kpiname" name="kpiname" placeholder="Key Performance Indicator" required>
+                              <label for="kpiname">Key Performance Indicator</label>
                           </div>
 
                           <div class="form-floating mb-3">
@@ -239,12 +239,13 @@
                             <td>{{ kpi.title }}</td>
                             <td>{{ kpi.value }}</td>
                             <td class="action-buttons">
-                               <button class="btn btn-primary editkpi" data-kpi-id="{{ kpi.id }}">
+                               <!-- <button class="btn btn-primary editkpi" data-kpi-id="{{ kpi.id }}">
                                     <i class="fas fa-edit"></i> 
-                                </button>
-                                  <button class="btn btn-success markClosed" data-kpi-id="{{ kpi.id }}">
-                                      <i class="fas fa-check-circle"></i>
+                                </button> -->
+                                  <button class="btn btn-danger markClosed" data-kpi-id="{{ kpi.id }}">
+                                      <i class="fas fa-trash"></i>
                                   </button>
+                      
                             </td>
                         </tr>
                     {% endfor %}
