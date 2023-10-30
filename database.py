@@ -383,3 +383,11 @@ def load_total_careers():
       result = conn.execute(text('SELECT COUNT(*) FROM careers'))
       total_careers = result.scalar()
       return total_careers
+
+def load_all_kpis():
+  with engine.connect() as conn:
+    result = conn.execute(text('select * from kpis order by id desc'))
+    kpis = []
+    for row in result.all():
+      kpis.append(row)
+    return kpis

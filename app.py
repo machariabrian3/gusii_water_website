@@ -35,7 +35,8 @@ from database import (
   load_total_tenders,
   load_active_tenders,
   load_active_careers,
-  load_total_careers
+  load_total_careers,
+  load_all_kpis
 )
 
 app = Flask(__name__)
@@ -66,7 +67,8 @@ def allowed_imgs(filename):
 
 @app.route("/")
 def index():
-  return render_template("home.html")
+  kpis = load_all_kpis()
+  return render_template("home.html",kpis = kpis)
 
 
 @app.route("/apiv1/login", methods=['POST'])
@@ -406,6 +408,18 @@ def delete_user_funct():
   delete_user(data)
   users = load_all_users()
   return render_template("admin_users.html", users=users)
+
+@app.route("/apiv1/admin_kpis")
+def admin_kpis():
+  user_email = session.get('user_email')
+  if user_email:
+    kpis = load_all_kpis()
+    return render_template("admin_kpis.html",
+                           kpis=kpis,
+                           user_email=user_email)
+  else:
+    # User is not logged in, redirect to the login page
+    return redirect(url_for('index'))
 
 
 if __name__ == "__main__":
