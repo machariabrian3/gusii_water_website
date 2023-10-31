@@ -3,42 +3,43 @@ import os
 from datetime import timedelta
 
 from flask import (
-  Flask,
-  jsonify,
-  redirect,
-  render_template,
-  request,
-  session,
-  url_for,
+    Flask,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    session,
+    url_for,
 )
 from werkzeug.utils import secure_filename
 
 from database import (
-  authenticate_user,
-  close_careers,
-  close_gallery,
-  close_tender,
-  delete_user,
-  insert_career,
-  insert_images,
-  insert_tender,
-  insert_user,
-  load_all_careers,
-  load_all_images,
-  load_all_tenders,
-  load_all_users,
-  load_gallery,
-  load_jobs,
-  load_tenders,
-  load_total_users,
-  load_active_users,
-  load_total_tenders,
-  load_active_tenders,
-  load_active_careers,
-  load_total_careers,
-  load_all_kpis,
-  delete_kpi,
-  insert_kpis
+    authenticate_user,
+    close_careers,
+    close_gallery,
+    close_tender,
+    delete_kpi,
+    delete_user,
+    insert_career,
+    insert_images,
+    insert_kpis,
+    insert_tender,
+    insert_user,
+    load_active_careers,
+    load_active_tenders,
+    load_active_users,
+    load_all_careers,
+    load_all_images,
+    load_all_kpis,
+    load_all_tenders,
+    load_all_users,
+    load_gallery,
+    load_jobs,
+    load_tenders,
+    load_total_careers,
+    load_total_tenders,
+    load_total_users,
 )
 
 app = Flask(__name__)
@@ -70,7 +71,7 @@ def allowed_imgs(filename):
 @app.route("/")
 def index():
   kpis = load_all_kpis()
-  return render_template("home.html",kpis = kpis)
+  return render_template("home.html", kpis=kpis)
 
 
 @app.route("/apiv1/login", methods=['POST'])
@@ -164,8 +165,14 @@ def admin_home():
     total_tenders = load_total_tenders()
     active_tenders = load_active_tenders()
 
-    
-    return render_template("admin_home.html", user_email=user_email, total_users=total_users, active_users=active_users, total_careers=total_careers, active_careers=active_careers, total_tenders=total_tenders, active_tenders=active_tenders)
+    return render_template("admin_home.html",
+                           user_email=user_email,
+                           total_users=total_users,
+                           active_users=active_users,
+                           total_careers=total_careers,
+                           active_careers=active_careers,
+                           total_tenders=total_tenders,
+                           active_tenders=active_tenders)
   else:
     # User is not logged in, redirect to the login page
     return redirect(url_for('index'))
@@ -404,6 +411,7 @@ def create_users():
   users = load_all_users()
   return render_template("admin_users.html", users=users)
 
+
 @app.route("/apiv1/user/close", methods=['post'])
 def delete_user_funct():
   data = request.get_json()
@@ -411,17 +419,17 @@ def delete_user_funct():
   users = load_all_users()
   return render_template("admin_users.html", users=users)
 
+
 @app.route("/apiv1/admin_kpis")
 def admin_kpis():
   user_email = session.get('user_email')
   if user_email:
     kpis = load_all_kpis()
-    return render_template("admin_kpis.html",
-                           kpis=kpis,
-                           user_email=user_email)
+    return render_template("admin_kpis.html", kpis=kpis, user_email=user_email)
   else:
     # User is not logged in, redirect to the login page
     return redirect(url_for('index'))
+
 
 @app.route("/apiv1/kpi/create", methods=['POST'])
 def create_kpi():
@@ -448,12 +456,22 @@ def create_kpi():
   kpis = load_all_kpis()
   return render_template("admin_kpis.html", kpis=kpis)
 
+
 @app.route("/apiv1/kpi/close", methods=['post'])
 def delete_kpi_funct():
   data = request.get_json()
   delete_kpi(data)
   kpis = load_all_kpis()
   return render_template("admin_kpis.html", kpis=kpis)
+
+
+@app.route('/apiv1/download/<filename>')
+def download_file(filename):
+  download_path = os.path.join(os.getcwd(), 'uploads', filename)
+  if os.path.exists(download_path):
+    return send_file(download_path, as_attachment=True)
+  else:
+    return "File not found", 404
 
 
 if __name__ == "__main__":

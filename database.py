@@ -350,39 +350,48 @@ def delete_user(data):
 
 def load_total_users():
   with engine.connect() as conn:
-      result = conn.execute(text('SELECT COUNT(*) FROM accounts'))
-      total_users = result.scalar()
-      return total_users
+    result = conn.execute(text('SELECT COUNT(*) FROM accounts'))
+    total_users = result.scalar()
+    return total_users
+
 
 def load_active_users():
   with engine.connect() as conn:
-      result = conn.execute(text('SELECT COUNT(*) FROM accounts WHERE status = "ACTIVE"'))
-      active_users = result.scalar()
-      return active_users
+    result = conn.execute(
+        text('SELECT COUNT(*) FROM accounts WHERE status = "ACTIVE"'))
+    active_users = result.scalar()
+    return active_users
+
 
 def load_total_tenders():
   with engine.connect() as conn:
-      result = conn.execute(text('SELECT COUNT(*) FROM tenders'))
-      total_tenders = result.scalar()
-      return total_tenders
+    result = conn.execute(text('SELECT COUNT(*) FROM tenders'))
+    total_tenders = result.scalar()
+    return total_tenders
+
 
 def load_active_tenders():
   with engine.connect() as conn:
-      result = conn.execute(text('SELECT COUNT(*) FROM tenders WHERE tender_status = "ACTIVE"'))
-      active_tenders = result.scalar()
-      return active_tenders
+    result = conn.execute(
+        text('SELECT COUNT(*) FROM tenders WHERE tender_status = "ACTIVE"'))
+    active_tenders = result.scalar()
+    return active_tenders
+
 
 def load_active_careers():
   with engine.connect() as conn:
-      result = conn.execute(text('SELECT COUNT(*) FROM careers WHERE job_status = "ACTIVE"'))
-      active_careers = result.scalar()
-      return active_careers
+    result = conn.execute(
+        text('SELECT COUNT(*) FROM careers WHERE job_status = "ACTIVE"'))
+    active_careers = result.scalar()
+    return active_careers
+
 
 def load_total_careers():
   with engine.connect() as conn:
-      result = conn.execute(text('SELECT COUNT(*) FROM careers'))
-      total_careers = result.scalar()
-      return total_careers
+    result = conn.execute(text('SELECT COUNT(*) FROM careers'))
+    total_careers = result.scalar()
+    return total_careers
+
 
 def load_all_kpis():
   with engine.connect() as conn:
@@ -428,7 +437,6 @@ def insert_kpis(data):
       logger.info(f"Kpi inserted successfully. : {str(parameters)}")
     except Exception as e:
       logger.error(f"Error inserting kpi(db): {str(e)}")
-
 
 
 def delete_kpi(data):
