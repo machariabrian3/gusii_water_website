@@ -16,6 +16,7 @@
       .contact-container {
         display: flex;
         justify-content: space-between;
+        flex-wrap: wrap;
         padding: 20px;
       }
 
@@ -30,12 +31,17 @@
         margin-bottom: 10px;
       }
 
+
+      .contact-details,
       .contact-form {
-        width: 45%;
-        padding: 20px;
+          width: 100%; /* Occupy full width on smaller screens */
+          padding: 10px; /* Reduced padding for smaller screens */
+          margin-bottom: 20px; /* Add margin between elements */
+          box-sizing: border-box; /* Include padding in width calculation */
         border: 1px solid #ccc;
         border-radius: 10px;
       }
+
 
       .contact-form label {
         display: block;
@@ -81,9 +87,39 @@
       ></iframe>
     </div>
     <!-- Banner -->
-    
-
     <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="contact-details">
+                  <h2>GET IN TOUCH</h2>
+                  <p><b>Main Office</b><br>Bobaracho, Along Kisii – Keroka Road</p>
+                  <p><b>Kisii Town</b><br>Huduma Center – Desk 12</p>
+                  <p><b>Kisii Area Office</b><br>Mashauri</p>
+                  <p>P.O Box 3880 – 40200 Kisii.</p>
+                  <p>0798 754 178</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="contact-form">
+                    <h2>Contact Us</h2>
+                  <form id="contactForm" onsubmit="return validateForm()">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                    <label for="subject">Subject:</label>
+                    <input type="text" id="subject" name="subject" required>
+                    <label for="message">Message:</label>
+                    <textarea id="message" name="message" required></textarea>
+                    <button onclick="sendEmail()" type="button">Send Message</button>
+                  </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- <div class="container">
       <div class="contact-container">
         <div class="contact-details">
           <h2>GET IN TOUCH</h2>
@@ -109,6 +145,7 @@
         </div>
       </div>
     </div>
+ -->
 
 
     <!-- Footer -->
