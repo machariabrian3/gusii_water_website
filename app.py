@@ -44,7 +44,7 @@ from database import (
 
 app = Flask(__name__)
 app.secret_key = 'This is gwasco site launched by MD and created by Devs'
-app.permanent_session_lifetime = timedelta(minutes=30)
+app.permanent_session_lifetime = timedelta(minutes=15)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
